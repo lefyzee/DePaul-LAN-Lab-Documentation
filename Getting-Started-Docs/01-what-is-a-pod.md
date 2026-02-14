@@ -18,3 +18,14 @@ You will need to turn on the pods, plug in cross-over ethernet cables into each 
 > Think of a pod as a mini data center networking environment that you can access from a terminal.
 
 ## 1.2 Why the Pods are Useful
+
+Pods allow students to:
+
+- Practice on **real networking hardware**
+- Learn recovery and troubleshooting skills
+- Make mistakes safely
+- Work in an environment similar to enterprise networks
+
+This approach goes beyond simulations in Packet Tracer and Cisco Modeling Labs (CML) and prepares you for real-world networking work.
+
+## 1.3 Devices Inside a Pod
