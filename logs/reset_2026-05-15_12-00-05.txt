@@ -1,0 +1,312 @@
+[2026-05-15 12:00:05] ============================================================
+[2026-05-15 12:00:05] LAN Lab reset started.
+[2026-05-15 12:00:05] Terminal Server: 192.168.100.1
+[2026-05-15 12:00:05] Scanning ports 2100-3600 by 100
+[2026-05-15 12:00:05] ============================================================
+[2026-05-15 12:00:05] [Port 2100] Starting connection attempt.
+[2026-05-15 12:00:13] [Port 2100] ERROR: timed out
+[2026-05-15 12:00:13] ------------------------------------------------------------
+[2026-05-15 12:00:13] [Port 2200] Starting connection attempt.
+[2026-05-15 12:00:21] [Port 2200] ERROR: timed out
+[2026-05-15 12:00:21] ------------------------------------------------------------
+[2026-05-15 12:00:21] [Port 2300] Starting connection attempt.
+[2026-05-15 12:00:29] [Port 2300] ERROR: timed out
+[2026-05-15 12:00:29] ------------------------------------------------------------
+[2026-05-15 12:00:29] [Port 2400] Starting connection attempt.
+[2026-05-15 12:00:37] [Port 2400] ERROR: timed out
+[2026-05-15 12:00:37] ------------------------------------------------------------
+[2026-05-15 12:00:37] [Port 2500] Starting connection attempt.
+[2026-05-15 12:00:45] [Port 2500] ERROR: timed out
+[2026-05-15 12:00:45] ------------------------------------------------------------
+[2026-05-15 12:00:45] [Port 2600] Starting connection attempt.
+[2026-05-15 12:00:53] [Port 2600] ERROR: timed out
+[2026-05-15 12:00:53] ------------------------------------------------------------
+[2026-05-15 12:00:53] [Port 2700] Starting connection attempt.
+[2026-05-15 12:01:01] [Port 2700] ERROR: timed out
+[2026-05-15 12:01:01] ------------------------------------------------------------
+[2026-05-15 12:01:01] [Port 2800] Starting connection attempt.
+[2026-05-15 12:01:09] [Port 2800] ERROR: timed out
+[2026-05-15 12:01:09] ------------------------------------------------------------
+[2026-05-15 12:01:09] [Port 2900] Starting connection attempt.
+[2026-05-15 12:01:17] [Port 2900] ERROR: timed out
+[2026-05-15 12:01:17] ------------------------------------------------------------
+[2026-05-15 12:01:17] [Port 3000] Starting connection attempt.
+[2026-05-15 12:01:25] [Port 3000] ERROR: timed out
+[2026-05-15 12:01:25] ------------------------------------------------------------
+[2026-05-15 12:01:25] [Port 3100] Starting connection attempt.
+[2026-05-15 12:01:25] [Port 3100] ERROR: Unsupported 'device_type' currently supported platforms are: 
+adtran_os_telnet
+apresia_aeos_telnet
+arista_eos_telnet
+aruba_procurve_telnet
+audiocode_66_telnet
+audiocode_72_telnet
+audiocode_shell_telnet
+bintec_boss_telnet
+brocade_fastiron_telnet
+brocade_netiron_telnet
+calix_b6_telnet
+calix_exa_telnet
+centec_os_telnet
+ciena_saos_telnet
+cisco_ios_telnet
+cisco_ioswlc_telnet
+cisco_nxos_telnet
+cisco_s200_telnet
+cisco_s300_telnet
+cisco_s500_telnet
+cisco_xe_telnet
+cisco_xr_telnet
+dell_dnos6_telnet
+dell_powerconnect_telnet
+dlink_ds_telnet
+extreme_exos_telnet
+extreme_netiron_telnet
+extreme_telnet
+fiberstore_fsosv2_telnet
+furukawa_fitelnet_telnet
+generic_telnet
+generic_termserver_telnet
+genexis_solt33_telnet
+hioso_olt_telnet
+hp_comware_telnet
+hp_procurve_telnet
+huawei_olt_telnet
+huawei_ont_telnet
+huawei_telnet
+iij_seilos_telnet
+infinera_packet_telnet
+ipinfusion_ocnos_telnet
+juniper_junos_telnet
+maipu_telnet
+nec_ix_telnet
+nokia_sros_telnet
+oneaccess_oneos_telnet
+optilink_eolt11444_telnet
+optilink_eolt9702_telnet
+optilink_golt924_telnet
+paloalto_panos_telnet
+rad_etx_telnet
+raisecom_ros_telnet
+raisecom_telnet
+ruckus_fastiron_telnet
+ruijie_os_telnet
+supermicro_smis_telnet
+telcosystems_binos_telnet
+teldat_cit_telnet
+tplink_jetstream_telnet
+yamaha_telnet
+zte_zxros_telnet
+[2026-05-15 12:01:25] ------------------------------------------------------------
+[2026-05-15 12:01:25] [Port 3200] Starting connection attempt.
+[2026-05-15 12:01:25] [Port 3200] ERROR: Unsupported 'device_type' currently supported platforms are: 
+adtran_os_telnet
+apresia_aeos_telnet
+arista_eos_telnet
+aruba_procurve_telnet
+audiocode_66_telnet
+audiocode_72_telnet
+audiocode_shell_telnet
+bintec_boss_telnet
+brocade_fastiron_telnet
+brocade_netiron_telnet
+calix_b6_telnet
+calix_exa_telnet
+centec_os_telnet
+ciena_saos_telnet
+cisco_ios_telnet
+cisco_ioswlc_telnet
+cisco_nxos_telnet
+cisco_s200_telnet
+cisco_s300_telnet
+cisco_s500_telnet
+cisco_xe_telnet
+cisco_xr_telnet
+dell_dnos6_telnet
+dell_powerconnect_telnet
+dlink_ds_telnet
+extreme_exos_telnet
+extreme_netiron_telnet
+extreme_telnet
+fiberstore_fsosv2_telnet
+furukawa_fitelnet_telnet
+generic_telnet
+generic_termserver_telnet
+genexis_solt33_telnet
+hioso_olt_telnet
+hp_comware_telnet
+hp_procurve_telnet
+huawei_olt_telnet
+huawei_ont_telnet
+huawei_telnet
+iij_seilos_telnet
+infinera_packet_telnet
+ipinfusion_ocnos_telnet
+juniper_junos_telnet
+maipu_telnet
+nec_ix_telnet
+nokia_sros_telnet
+oneaccess_oneos_telnet
+optilink_eolt11444_telnet
+optilink_eolt9702_telnet
+optilink_golt924_telnet
+paloalto_panos_telnet
+rad_etx_telnet
+raisecom_ros_telnet
+raisecom_telnet
+ruckus_fastiron_telnet
+ruijie_os_telnet
+supermicro_smis_telnet
+telcosystems_binos_telnet
+teldat_cit_telnet
+tplink_jetstream_telnet
+yamaha_telnet
+zte_zxros_telnet
+[2026-05-15 12:01:25] ------------------------------------------------------------
+[2026-05-15 12:01:25] [Port 3300] Starting connection attempt.
+[2026-05-15 12:01:25] [Port 3300] ERROR: Unsupported 'device_type' currently supported platforms are: 
+adtran_os_telnet
+apresia_aeos_telnet
+arista_eos_telnet
+aruba_procurve_telnet
+audiocode_66_telnet
+audiocode_72_telnet
+audiocode_shell_telnet
+bintec_boss_telnet
+brocade_fastiron_telnet
+brocade_netiron_telnet
+calix_b6_telnet
+calix_exa_telnet
+centec_os_telnet
+ciena_saos_telnet
+cisco_ios_telnet
+cisco_ioswlc_telnet
+cisco_nxos_telnet
+cisco_s200_telnet
+cisco_s300_telnet
+cisco_s500_telnet
+cisco_xe_telnet
+cisco_xr_telnet
+dell_dnos6_telnet
+dell_powerconnect_telnet
+dlink_ds_telnet
+extreme_exos_telnet
+extreme_netiron_telnet
+extreme_telnet
+fiberstore_fsosv2_telnet
+furukawa_fitelnet_telnet
+generic_telnet
+generic_termserver_telnet
+genexis_solt33_telnet
+hioso_olt_telnet
+hp_comware_telnet
+hp_procurve_telnet
+huawei_olt_telnet
+huawei_ont_telnet
+huawei_telnet
+iij_seilos_telnet
+infinera_packet_telnet
+ipinfusion_ocnos_telnet
+juniper_junos_telnet
+maipu_telnet
+nec_ix_telnet
+nokia_sros_telnet
+oneaccess_oneos_telnet
+optilink_eolt11444_telnet
+optilink_eolt9702_telnet
+optilink_golt924_telnet
+paloalto_panos_telnet
+rad_etx_telnet
+raisecom_ros_telnet
+raisecom_telnet
+ruckus_fastiron_telnet
+ruijie_os_telnet
+supermicro_smis_telnet
+telcosystems_binos_telnet
+teldat_cit_telnet
+tplink_jetstream_telnet
+yamaha_telnet
+zte_zxros_telnet
+[2026-05-15 12:01:25] ------------------------------------------------------------
+[2026-05-15 12:01:25] [Port 3400] Starting connection attempt.
+[2026-05-15 12:01:25] [Port 3400] ERROR: Unsupported 'device_type' currently supported platforms are: 
+adtran_os_telnet
+apresia_aeos_telnet
+arista_eos_telnet
+aruba_procurve_telnet
+audiocode_66_telnet
+audiocode_72_telnet
+audiocode_shell_telnet
+bintec_boss_telnet
+brocade_fastiron_telnet
+brocade_netiron_telnet
+calix_b6_telnet
+calix_exa_telnet
+centec_os_telnet
+ciena_saos_telnet
+cisco_ios_telnet
+cisco_ioswlc_telnet
+cisco_nxos_telnet
+cisco_s200_telnet
+cisco_s300_telnet
+cisco_s500_telnet
+cisco_xe_telnet
+cisco_xr_telnet
+dell_dnos6_telnet
+dell_powerconnect_telnet
+dlink_ds_telnet
+extreme_exos_telnet
+extreme_netiron_telnet
+extreme_telnet
+fiberstore_fsosv2_telnet
+furukawa_fitelnet_telnet
+generic_telnet
+generic_termserver_telnet
+genexis_solt33_telnet
+hioso_olt_telnet
+hp_comware_telnet
+hp_procurve_telnet
+huawei_olt_telnet
+huawei_ont_telnet
+huawei_telnet
+iij_seilos_telnet
+infinera_packet_telnet
+ipinfusion_ocnos_telnet
+juniper_junos_telnet
+maipu_telnet
+nec_ix_telnet
+nokia_sros_telnet
+oneaccess_oneos_telnet
+optilink_eolt11444_telnet
+optilink_eolt9702_telnet
+optilink_golt924_telnet
+paloalto_panos_telnet
+rad_etx_telnet
+raisecom_ros_telnet
+raisecom_telnet
+ruckus_fastiron_telnet
+ruijie_os_telnet
+supermicro_smis_telnet
+telcosystems_binos_telnet
+teldat_cit_telnet
+tplink_jetstream_telnet
+yamaha_telnet
+zte_zxros_telnet
+[2026-05-15 12:01:25] ------------------------------------------------------------
+[2026-05-15 12:01:25] [Port 3500] Starting connection attempt.
+[2026-05-15 12:01:25] [Port 3500] Extra port. Checking for connection only.
+[2026-05-15 12:01:25] [Port 3500] No reset role assigned. Skipping reset.
+[2026-05-15 12:01:25] ------------------------------------------------------------
+[2026-05-15 12:01:25] [Port 3600] Starting connection attempt.
+[2026-05-15 12:01:25] [Port 3600] Extra port. Checking for connection only.
+[2026-05-15 12:01:25] [Port 3600] No reset role assigned. Skipping reset.
+[2026-05-15 12:01:25] ------------------------------------------------------------
+[2026-05-15 12:01:25] ============================================================
+[2026-05-15 12:01:25] LAN Lab reset completed.
+[2026-05-15 12:01:25] SUMMARY
+[2026-05-15 12:01:25] Successful resets: 0
+[2026-05-15 12:01:25] Password protected/skipped: 0
+[2026-05-15 12:01:25] No device detected: 0
+[2026-05-15 12:01:25] Extra ports skipped: 2
+[2026-05-15 12:01:25] Errors: 14
+[2026-05-15 12:01:25] ============================================================

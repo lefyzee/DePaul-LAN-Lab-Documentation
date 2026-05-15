@@ -7,6 +7,10 @@ from netmiko.exceptions import (
     NetmikoAuthenticationException,
 )
 
+# =========================
+# Check if Netmiko is installed
+# =========================
+
 
 # =========================
 # LAN Lab Reset Tool Config
@@ -15,7 +19,7 @@ from netmiko.exceptions import (
 TERMINAL_SERVER_IP = "192.168.100.1"
 
 START_PORT = 2100
-END_PORT = 3600
+END_PORT = 2100
 PORT_STEP = 100
 
 TIMEOUT = 8
@@ -148,16 +152,18 @@ def reset_device(port, log_file):
         return "extra_detected"
 
     device = {
-        "device_type": netmiko_type,
-        "host": TERMINAL_SERVER_IP,
-        "port": port,
-        "username": "",
-        "password": "",
-        "secret": "",
-        "timeout": TIMEOUT,
-        "banner_timeout": TIMEOUT,
-        "auth_timeout": TIMEOUT,
-        "conn_timeout": TIMEOUT,
+    "device_type": "cisco_ios_serial",
+    "serial_settings": {
+        "port": "COM5",
+        "baudrate": 9600,
+        "bytesize": 8,
+        "parity": "N",
+        "stopbits": 1,
+    },
+    "username": "",
+    "password": "",
+    "secret": "",
+    "timeout": TIMEOUT,
     }
 
     try:
