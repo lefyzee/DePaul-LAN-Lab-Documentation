@@ -1,0 +1,36 @@
+[2026-05-15 12:53:42] ============================================================
+[2026-05-15 12:53:42] Single router serial reset started.
+[2026-05-15 12:53:42] Serial Port: COM5
+[2026-05-15 12:53:42] ============================================================
+[2026-05-15 12:53:44] Connected successfully.
+[2026-05-15 12:53:44] Prompt detected: CE-LA-DK
+[2026-05-15 12:53:44] Attempting to enter enable mode.
+[2026-05-15 12:53:44] Current prompt: CE-LA-DK#
+[2026-05-15 12:53:44] Erasing startup configuration.
+[2026-05-15 12:53:44] Sending command: write erase
+[2026-05-15 12:53:46] Output:
+write erase
+Erasing the nvram filesystem will remove all configuration files! Continue? [confirm]
+[2026-05-15 12:53:46] Sending command: [ENTER]
+[2026-05-15 12:53:54] Output:
+
+[OK]
+Erase of nvram: complete
+CE-LA-DK#
+*May 15 16:50:54.730: %SYS-7-NV_BLOCK_INIT: Initialized the geometry of nvram
+CE-LA-DK#
+[2026-05-15 12:53:54] Sending reload command.
+[2026-05-15 12:53:54] Sending command: reload
+[2026-05-15 12:53:58] Output:
+reload
+Proceed with reload? [confirm]
+[2026-05-15 12:53:58] Reload confirmation detected. Sending ENTER.
+[2026-05-15 12:53:58] Sending command: [ENTER]
+[2026-05-15 12:54:04] Output:
+
+
+*May 15 16:51:05.134: %SYS-5-RELOAD: Reload requested by console. Reload Reason: Reload Command.
+[2026-05-15 12:54:04] Reset commands sent. Router should now reload.
+[2026-05-15 12:54:14] ============================================================
+[2026-05-15 12:54:14] Script completed.
+[2026-05-15 12:54:14] ============================================================

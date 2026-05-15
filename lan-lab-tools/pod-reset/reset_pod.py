@@ -152,18 +152,16 @@ def reset_device(port, log_file):
         return "extra_detected"
 
     device = {
-    "device_type": "cisco_ios_serial",
-    "serial_settings": {
-        "port": "COM5",
-        "baudrate": 9600,
-        "bytesize": 8,
-        "parity": "N",
-        "stopbits": 1,
-    },
-    "username": "",
-    "password": "",
-    "secret": "",
-    "timeout": TIMEOUT,
+        "device_type": netmiko_type,
+        "host": TERMINAL_SERVER_IP,
+        "port": port,
+        "username": "",
+        "password": "",
+        "secret": "",
+        "timeout": TIMEOUT,
+        "banner_timeout": TIMEOUT,
+        "auth_timeout": TIMEOUT,
+        "conn_timeout": TIMEOUT,
     }
 
     try:
