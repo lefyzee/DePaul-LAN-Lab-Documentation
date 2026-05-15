@@ -1,0 +1,60 @@
+terminal_server:
+  host: 192.168.100.1
+  timeout: 10
+
+devices:
+  - name: R1
+    role: router
+    port: 2100
+
+  - name: R2
+    role: router
+    port: 2200
+
+  - name: R3
+    role: router
+    port: 2300
+
+  - name: R4
+    role: router
+    port: 2400
+
+  - name: R5
+    role: router
+    port: 2500
+
+  - name: R6
+    role: router
+    port: 2600
+
+  - name: R7
+    role: router
+    port: 2700
+
+  - name: SW1
+    role: switch
+    port: 2800
+
+  - name: SW3
+    role: switch
+    port: 2900
+
+  - name: SW4
+    role: switch
+    port: 3000
+
+  - name: ASA1
+    role: asa
+    port: 3100
+
+  - name: ASA2
+    role: asa
+    port: 3400
+
+  - name: ASA3
+    role: asa
+    port: 3200
+
+  - name: ASA4
+    role: asa
+    port: 3300

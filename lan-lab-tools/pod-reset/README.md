@@ -1,1 +1,3 @@
 Code to reset configurations on Pods in the LAN Lab
+
+How to use:
