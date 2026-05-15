@@ -220,3 +220,56 @@ def safety_prompt():
     if confirm != "RESET":
         print("Reset cancelled.")
         exit()
+
+
+# =========================
+# Main Program
+# =========================
+
+def main():
+    safety_prompt()
+
+    log_file = create_log_file()
+
+    summary = {
+        "success": 0,
+        "password_protected": 0,
+        "no_device": 0,
+        "no_prompt": 0,
+        "extra_detected": 0,
+        "error": 0
+    }
+
+    log("=" * 60, log_file)
+    log("LAN Lab reset started.", log_file)
+    log(f"Terminal Server: {TERMINAL_SERVER_IP}", log_file)
+    log(f"Scanning ports {START_PORT}-{END_PORT} by {PORT_STEP}", log_file)
+    log("=" * 60, log_file)
+
+    for port in range(START_PORT, END_PORT + 1, PORT_STEP):
+        result = reset_device(port, log_file)
+
+        if result in summary:
+            summary[result] += 1
+        else:
+            summary["error"] += 1
+
+        log("-" * 60, log_file)
+
+    log("LAN Lab reset completed.", log_file)
+    log("=" * 60, log_file)
+    log("SUMMARY", log_file)
+    log(f"Successful resets: {summary['success']}", log_file)
+    log(f"Password protected/skipped: {summary['password_protected']}", log_file)
+    log(f"No device detected: {summary['no_device']}", log_file)
+    log(f"No usable prompt: {summary['no_prompt']}", log_file)
+    log(f"Extra ports detected: {summary['extra_detected']}", log_file)
+    log(f"Errors: {summary['error']}", log_file)
+    log("=" * 60, log_file)
+
+    print()
+    print(f"Log saved to: {log_file}")
+
+
+if __name__ == "__main__":
+    main()
