@@ -1,35 +1,31 @@
 import os
+import sys
 from datetime import datetime
 
-from netmiko import ConnectHandler
-from netmiko.exceptions import (
-    NetmikoTimeoutException,
-    NetmikoAuthenticationException,
-)
+# ==============================
+# Check if netmiko is installed
+# ==============================
+try:
+    from netmiko import ConnectHandler
+    from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
+except ModuleNotFoundError:
+    print("ERROR: Netmiko is not installed.")
+    print("Run: python -m pip install -r requirements.txt")
+    sys.exit(1)
 
-# =========================
-# Check if Netmiko is installed
-# =========================
-
-
-# =========================
-# LAN Lab Reset Tool Config
-# =========================
-
+# The MRV's IP address
 TERMINAL_SERVER_IP = "192.168.100.1"
 
+# Change these ports to either test one device or set it from START_PORT to 2100 to END_PORT 3600 to reset all devices
 START_PORT = 2100
 END_PORT = 2100
 PORT_STEP = 100
 
-TIMEOUT = 8
+# Send the commands to the logs folder
+TIMEOUT = 10
 LOG_DIR = "logs"
 
-
-# =========================
-# Logging
-# =========================
-
+# Check the time
 def get_timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -43,14 +39,9 @@ def create_log_file():
 def log(message, log_file):
     entry = f"[{get_timestamp()}] {message}"
     print(entry)
-
     with open(log_file, "a", encoding="utf-8") as file:
         file.write(entry + "\n")
 
-
-# =========================
-# Device Classification
-# =========================
 
 def get_device_type(port):
     if 2100 <= port <= 2700:
@@ -59,97 +50,95 @@ def get_device_type(port):
         return "switch"
     elif 3100 <= port <= 3400:
         return "asa"
-    else:
-        return "extra"
+    return "extra"
 
 
 def get_netmiko_type(device_type):
     if device_type in ["router", "switch"]:
         return "cisco_ios_telnet"
-    elif device_type == "asa":
+    if device_type == "asa":
         return "cisco_asa_telnet"
     return None
 
 
-# =========================
-# Command Helpers
-# =========================
-
-def send_timing_command(connection, command, log_file, port):
-    log(f"[Port {port}] Sending command: {command}", log_file)
+def send_command(connection, command, log_file, port):
+    display = command if command else "[ENTER]"
+    log(f"[Port {port}] Sending command: {display}", log_file)
 
     output = connection.send_command_timing(
         command,
         strip_prompt=False,
         strip_command=False,
+        delay_factor=2,
     )
 
-    lower_output = output.lower()
-
-    if "confirm" in lower_output or "proceed" in lower_output:
-        log(f"[Port {port}] Confirmation prompt detected. Sending ENTER.", log_file)
-        output += connection.send_command_timing(
-            "",
-            strip_prompt=False,
-            strip_command=False,
-        )
-
-    if "[yes/no]" in lower_output or "yes/no" in lower_output:
-        log(f"[Port {port}] Yes/No prompt detected. Sending yes.", log_file)
-        output += connection.send_command_timing(
-            "yes",
-            strip_prompt=False,
-            strip_command=False,
-        )
-
+    log(f"[Port {port}] Output:\n{output}", log_file)
     return output
 
 
-def reset_router(connection, log_file, port):
-    log(f"[Port {port}] Router reset started.", log_file)
+def handle_reload(connection, log_file, port):
+    output = send_command(connection, "reload", log_file, port)
+    lower = output.lower()
 
-    send_timing_command(connection, "write erase", log_file, port)
-    send_timing_command(connection, "reload", log_file, port)
+    if "system configuration has been modified" in lower or "save?" in lower:
+        log(f"[Port {port}] Save prompt detected. Sending 'no'.", log_file)
+        output = send_command(connection, "no", log_file, port)
+        lower = output.lower()
 
-    log(f"[Port {port}] Router reset commands sent.", log_file)
+    if "confirm" in lower or "proceed" in lower:
+        log(f"[Port {port}] Reload confirmation detected. Sending ENTER.", log_file)
+        send_command(connection, "", log_file, port)
 
 
-def reset_switch(connection, log_file, port):
-    log(f"[Port {port}] Switch reset started.", log_file)
+def reset_ios_device(connection, log_file, port, is_switch=False):
+    try:
+        connection.enable()
+    except Exception:
+        log(f"[Port {port}] Enable mode may already be active.", log_file)
 
-    send_timing_command(connection, "write erase", log_file, port)
-    send_timing_command(connection, "delete /force flash:vlan.dat", log_file, port)
-    send_timing_command(connection, "reload", log_file, port)
+    prompt = connection.find_prompt()
+    log(f"[Port {port}] Current prompt: {prompt}", log_file)
 
-    log(f"[Port {port}] Switch reset commands sent.", log_file)
+    if not prompt.strip().endswith("#"):
+        log(f"[Port {port}] Not in privileged EXEC mode. Skipping.", log_file)
+        return False
+
+    output = send_command(connection, "write erase", log_file, port)
+
+    if "confirm" in output.lower() or "erase of nvram" in output.lower():
+        send_command(connection, "", log_file, port)
+
+    if is_switch:
+        send_command(connection, "delete /force flash:vlan.dat", log_file, port)
+
+    handle_reload(connection, log_file, port)
+    return True
 
 
 def reset_asa(connection, log_file, port):
-    log(f"[Port {port}] ASA reset started.", log_file)
+    try:
+        connection.enable()
+    except Exception:
+        log(f"[Port {port}] Enable mode may already be active.", log_file)
 
-    send_timing_command(connection, "write erase", log_file, port)
-    send_timing_command(connection, "reload", log_file, port)
+    send_command(connection, "write erase", log_file, port)
+    handle_reload(connection, log_file, port)
+    return True
 
-    log(f"[Port {port}] ASA reset commands sent.", log_file)
-
-
-# =========================
-# Reset Logic
-# =========================
 
 def reset_device(port, log_file):
     device_type = get_device_type(port)
-
-    log(f"[Port {port}] Starting connection attempt.", log_file)
-
-    if device_type == "extra":
-        log(f"[Port {port}] Extra port. Checking for connection only.", log_file)
-
     netmiko_type = get_netmiko_type(device_type)
 
+    log(f"[Port {port}] Connecting to {device_type.upper()} port.", log_file)
+
     if netmiko_type is None:
-        log(f"[Port {port}] No reset role assigned. Skipping reset.", log_file)
+        log(f"[Port {port}] Extra/future port. No reset role assigned.", log_file)
         return "extra_detected"
+
+# ==============
+# Main Logic
+# ==============
 
     device = {
         "device_type": netmiko_type,
@@ -166,25 +155,30 @@ def reset_device(port, log_file):
 
     try:
         connection = ConnectHandler(**device)
-
-        log(f"[Port {port}] Connected successfully as {device_type.upper()}.", log_file)
+        log(f"[Port {port}] Connected successfully.", log_file)
 
         prompt = connection.find_prompt()
         log(f"[Port {port}] Prompt detected: {prompt}", log_file)
 
         if device_type == "router":
-            reset_router(connection, log_file, port)
+            success = reset_ios_device(connection, log_file, port)
 
         elif device_type == "switch":
-            reset_switch(connection, log_file, port)
+            success = reset_ios_device(connection, log_file, port, is_switch=True)
 
         elif device_type == "asa":
-            reset_asa(connection, log_file, port)
+            success = reset_asa(connection, log_file, port)
+
+        else:
+            success = False
 
         connection.disconnect()
 
-        log(f"[Port {port}] Reset process completed.", log_file)
-        return "success"
+        if success:
+            log(f"[Port {port}] Reset initiated successfully.", log_file)
+            return "success"
+
+        return "error"
 
     except NetmikoAuthenticationException:
         log(f"[Port {port}] Password/login prompt detected. Skipping.", log_file)
@@ -199,18 +193,13 @@ def reset_device(port, log_file):
         return "error"
 
 
-# =========================
-# Safety Prompt
-# =========================
-
 def safety_prompt():
     print("=" * 60)
     print("LAN LAB CISCO POD RESET TOOL")
     print("=" * 60)
     print()
     print("WARNING:")
-    print("This script will attempt to erase startup configurations")
-    print("on reachable Cisco routers, switches, and ASAs.")
+    print("This will erase startup configurations and reload reachable devices.")
     print()
     print(f"Terminal Server: {TERMINAL_SERVER_IP}")
     print(f"Ports: {START_PORT} to {END_PORT}, stepping by {PORT_STEP}")
@@ -226,16 +215,11 @@ def safety_prompt():
 
     if confirm != "RESET":
         print("Reset cancelled.")
-        exit()
+        sys.exit(0)
 
-
-# =========================
-# Main Program
-# =========================
 
 def main():
     safety_prompt()
-
     log_file = create_log_file()
 
     summary = {
@@ -254,12 +238,7 @@ def main():
 
     for port in range(START_PORT, END_PORT + 1, PORT_STEP):
         result = reset_device(port, log_file)
-
-        if result in summary:
-            summary[result] += 1
-        else:
-            summary["error"] += 1
-
+        summary[result] = summary.get(result, 0) + 1
         log("-" * 60, log_file)
 
     log("=" * 60, log_file)
