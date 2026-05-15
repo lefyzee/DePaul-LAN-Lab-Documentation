@@ -103,3 +103,120 @@ def detect_console_prompt(output):
             return True
 
     return False
+
+
+# =========================
+# Reset Logic
+# =========================
+
+def reset_router(connection, log_file, port):
+    send_command(connection, "", log_file, port)
+    send_command(connection, "enable", log_file, port)
+    send_command(connection, "write erase", log_file, port)
+    send_command(connection, "", log_file, port)
+    send_command(connection, "reload", log_file, port)
+    send_command(connection, "", log_file, port)
+
+
+def reset_switch(connection, log_file, port):
+    send_command(connection, "", log_file, port)
+    send_command(connection, "enable", log_file, port)
+    send_command(connection, "write erase", log_file, port)
+    send_command(connection, "", log_file, port)
+    send_command(connection, "delete /force flash:vlan.dat", log_file, port)
+    send_command(connection, "reload", log_file, port)
+    send_command(connection, "", log_file, port)
+
+
+def reset_asa(connection, log_file, port):
+    send_command(connection, "", log_file, port)
+    send_command(connection, "enable", log_file, port)
+    send_command(connection, "write erase", log_file, port)
+    send_command(connection, "reload", log_file, port)
+    send_command(connection, "", log_file, port)
+
+
+
+def reset_device(port, log_file):
+    device_type = get_device_type(port)
+
+    log(f"[Port {port}] Connecting to {device_type.upper()} port...", log_file)
+
+    try:
+        connection = telnetlib.Telnet(
+            TERMINAL_SERVER_IP,
+            port,
+            timeout=TIMEOUT
+        )
+
+        output = read_output(connection, wait_time=2)
+
+        if not output.strip():
+            connection.write(b"\n")
+            output = read_output(connection, wait_time=2)
+
+        if detect_blocked_access(output):
+            log(f"[Port {port}] Password/login prompt detected. Skipping device.", log_file)
+            connection.close()
+            return "password_protected"
+
+        if not detect_console_prompt(output):
+            log(f"[Port {port}] No usable Cisco prompt detected. Skipping.", log_file)
+            connection.close()
+            return "no_prompt"
+
+        log(f"[Port {port}] Device detected. Beginning reset process.", log_file)
+
+        if device_type == "router":
+            reset_router(connection, log_file, port)
+
+        elif device_type == "switch":
+            reset_switch(connection, log_file, port)
+
+        elif device_type == "asa":
+            reset_asa(connection, log_file, port)
+
+        else:
+            log(f"[Port {port}] Extra port detected. No reset commands sent.", log_file)
+            connection.close()
+            return "extra_detected"
+
+        log(f"[Port {port}] Reset commands completed.", log_file)
+
+        connection.close()
+        return "success"
+
+    except ConnectionRefusedError:
+        log(f"[Port {port}] No device detected. Connection refused.", log_file)
+        return "no_device"
+
+    except TimeoutError:
+        log(f"[Port {port}] No device detected. Connection timed out.", log_file)
+        return "no_device"
+
+    except Exception as error:
+        log(f"[Port {port}] ERROR: {error}", log_file)
+        return "error"
+
+
+# =========================
+# Safety Prompt
+# =========================
+
+def safety_prompt():
+    print("=" * 60)
+    print("LAN LAB CISCO POD RESET TOOL")
+    print("=" * 60)
+    print()
+    print("WARNING:")
+    print("This script will attempt to erase startup configurations")
+    print("on reachable Cisco routers, switches, and ASAs.")
+    print()
+    print(f"Terminal Server: {TERMINAL_SERVER_IP}")
+    print(f"Port Range: {START_PORT} to {END_PORT}, stepping by {PORT_STEP}")
+    print()
+    confirm = input("Type RESET to continue: ")
+
+    if confirm != "RESET":
+        print("Reset cancelled.")
+        exit()
