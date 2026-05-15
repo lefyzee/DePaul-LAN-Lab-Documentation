@@ -1,34 +1,40 @@
-import telnetlib
-import time
 import os
 from datetime import datetime
 
-# ============================
+from netmiko import ConnectHandler
+from netmiko.exceptions import (
+    NetmikoTimeoutException,
+    NetmikoAuthenticationException,
+)
+
+
+# =========================
 # LAN Lab Reset Tool Config
-# ============================
+# =========================
 
 TERMINAL_SERVER_IP = "192.168.100.1"
 
-START_PORT= 2100
+START_PORT = 2100
 END_PORT = 3600
-PORT_STEP= 100
+PORT_STEP = 100
 
-TIMEOUT= 5
-
+TIMEOUT = 8
 LOG_DIR = "logs"
 
 
-# ============================
+# =========================
 # Logging
-# ============================
+# =========================
 
 def get_timestamp():
-        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
 def create_log_file():
-        os.makedirs(LOG_DIR, exist_ok=True)
-        filename = datetime.now().strftime("reset_%Y-%m-%d_%H-%M-%S.txt")
-        return os.path.join(LOG_DIR, filename)
+    os.makedirs(LOG_DIR, exist_ok=True)
+    filename = datetime.now().strftime("reset_%Y-%m-%d_%H-%M-%S.txt")
+    return os.path.join(LOG_DIR, filename)
+
 
 def log(message, log_file):
     entry = f"[{get_timestamp()}] {message}"
@@ -51,121 +57,116 @@ def get_device_type(port):
         return "asa"
     else:
         return "extra"
-    
+
+
+def get_netmiko_type(device_type):
+    if device_type in ["router", "switch"]:
+        return "cisco_ios_telnet"
+    elif device_type == "asa":
+        return "cisco_asa_telnet"
+    return None
+
 
 # =========================
-# Telnet Helpers
+# Command Helpers
 # =========================
 
-def read_output(connection, wait_time=1):
-    time.sleep(wait_time)
-    return connection.read_very_eager().decode("utf-8", errors="ignore")
-
-
-def send_command(connection, command, log_file, port):
+def send_timing_command(connection, command, log_file, port):
     log(f"[Port {port}] Sending command: {command}", log_file)
-    connection.write(command.encode("ascii") + b"\n")
-    time.sleep(1)
-    return read_output(connection)
+
+    output = connection.send_command_timing(
+        command,
+        strip_prompt=False,
+        strip_command=False,
+    )
+
+    lower_output = output.lower()
+
+    if "confirm" in lower_output or "proceed" in lower_output:
+        log(f"[Port {port}] Confirmation prompt detected. Sending ENTER.", log_file)
+        output += connection.send_command_timing(
+            "",
+            strip_prompt=False,
+            strip_command=False,
+        )
+
+    if "[yes/no]" in lower_output or "yes/no" in lower_output:
+        log(f"[Port {port}] Yes/No prompt detected. Sending yes.", log_file)
+        output += connection.send_command_timing(
+            "yes",
+            strip_prompt=False,
+            strip_command=False,
+        )
+
+    return output
 
 
-def detect_blocked_access(output):
-    blocked_keywords = [
-        "password",
-        "username",
-        "login",
-        "authentication failed",
-        "access denied"
-    ]
+def reset_router(connection, log_file, port):
+    log(f"[Port {port}] Router reset started.", log_file)
 
-    output_lower = output.lower()
+    send_timing_command(connection, "write erase", log_file, port)
+    send_timing_command(connection, "reload", log_file, port)
 
-    for keyword in blocked_keywords:
-        if keyword in output_lower:
-            return True
-
-    return False
+    log(f"[Port {port}] Router reset commands sent.", log_file)
 
 
-def detect_console_prompt(output):
-    prompt_indicators = [
-        ">",
-        "#",
-        "ciscoasa",
-        "router",
-        "switch"
-    ]
+def reset_switch(connection, log_file, port):
+    log(f"[Port {port}] Switch reset started.", log_file)
 
-    output_lower = output.lower()
+    send_timing_command(connection, "write erase", log_file, port)
+    send_timing_command(connection, "delete /force flash:vlan.dat", log_file, port)
+    send_timing_command(connection, "reload", log_file, port)
 
-    for indicator in prompt_indicators:
-        if indicator in output_lower:
-            return True
+    log(f"[Port {port}] Switch reset commands sent.", log_file)
 
-    return False
+
+def reset_asa(connection, log_file, port):
+    log(f"[Port {port}] ASA reset started.", log_file)
+
+    send_timing_command(connection, "write erase", log_file, port)
+    send_timing_command(connection, "reload", log_file, port)
+
+    log(f"[Port {port}] ASA reset commands sent.", log_file)
 
 
 # =========================
 # Reset Logic
 # =========================
 
-def reset_router(connection, log_file, port):
-    send_command(connection, "", log_file, port)
-    send_command(connection, "enable", log_file, port)
-    send_command(connection, "write erase", log_file, port)
-    send_command(connection, "", log_file, port)
-    send_command(connection, "reload", log_file, port)
-    send_command(connection, "", log_file, port)
-
-
-def reset_switch(connection, log_file, port):
-    send_command(connection, "", log_file, port)
-    send_command(connection, "enable", log_file, port)
-    send_command(connection, "write erase", log_file, port)
-    send_command(connection, "", log_file, port)
-    send_command(connection, "delete /force flash:vlan.dat", log_file, port)
-    send_command(connection, "reload", log_file, port)
-    send_command(connection, "", log_file, port)
-
-
-def reset_asa(connection, log_file, port):
-    send_command(connection, "", log_file, port)
-    send_command(connection, "enable", log_file, port)
-    send_command(connection, "write erase", log_file, port)
-    send_command(connection, "reload", log_file, port)
-    send_command(connection, "", log_file, port)
-
-
-
 def reset_device(port, log_file):
     device_type = get_device_type(port)
 
-    log(f"[Port {port}] Connecting to {device_type.upper()} port...", log_file)
+    log(f"[Port {port}] Starting connection attempt.", log_file)
+
+    if device_type == "extra":
+        log(f"[Port {port}] Extra port. Checking for connection only.", log_file)
+
+    netmiko_type = get_netmiko_type(device_type)
+
+    if netmiko_type is None:
+        log(f"[Port {port}] No reset role assigned. Skipping reset.", log_file)
+        return "extra_detected"
+
+    device = {
+        "device_type": netmiko_type,
+        "host": TERMINAL_SERVER_IP,
+        "port": port,
+        "username": "",
+        "password": "",
+        "secret": "",
+        "timeout": TIMEOUT,
+        "banner_timeout": TIMEOUT,
+        "auth_timeout": TIMEOUT,
+        "conn_timeout": TIMEOUT,
+    }
 
     try:
-        connection = telnetlib.Telnet(
-            TERMINAL_SERVER_IP,
-            port,
-            timeout=TIMEOUT
-        )
+        connection = ConnectHandler(**device)
 
-        output = read_output(connection, wait_time=2)
+        log(f"[Port {port}] Connected successfully as {device_type.upper()}.", log_file)
 
-        if not output.strip():
-            connection.write(b"\n")
-            output = read_output(connection, wait_time=2)
-
-        if detect_blocked_access(output):
-            log(f"[Port {port}] Password/login prompt detected. Skipping device.", log_file)
-            connection.close()
-            return "password_protected"
-
-        if not detect_console_prompt(output):
-            log(f"[Port {port}] No usable Cisco prompt detected. Skipping.", log_file)
-            connection.close()
-            return "no_prompt"
-
-        log(f"[Port {port}] Device detected. Beginning reset process.", log_file)
+        prompt = connection.find_prompt()
+        log(f"[Port {port}] Prompt detected: {prompt}", log_file)
 
         if device_type == "router":
             reset_router(connection, log_file, port)
@@ -176,22 +177,17 @@ def reset_device(port, log_file):
         elif device_type == "asa":
             reset_asa(connection, log_file, port)
 
-        else:
-            log(f"[Port {port}] Extra port detected. No reset commands sent.", log_file)
-            connection.close()
-            return "extra_detected"
+        connection.disconnect()
 
-        log(f"[Port {port}] Reset commands completed.", log_file)
-
-        connection.close()
+        log(f"[Port {port}] Reset process completed.", log_file)
         return "success"
 
-    except ConnectionRefusedError:
-        log(f"[Port {port}] No device detected. Connection refused.", log_file)
-        return "no_device"
+    except NetmikoAuthenticationException:
+        log(f"[Port {port}] Password/login prompt detected. Skipping.", log_file)
+        return "password_protected"
 
-    except TimeoutError:
-        log(f"[Port {port}] No device detected. Connection timed out.", log_file)
+    except NetmikoTimeoutException:
+        log(f"[Port {port}] No device detected or connection timed out.", log_file)
         return "no_device"
 
     except Exception as error:
@@ -213,8 +209,15 @@ def safety_prompt():
     print("on reachable Cisco routers, switches, and ASAs.")
     print()
     print(f"Terminal Server: {TERMINAL_SERVER_IP}")
-    print(f"Port Range: {START_PORT} to {END_PORT}, stepping by {PORT_STEP}")
+    print(f"Ports: {START_PORT} to {END_PORT}, stepping by {PORT_STEP}")
     print()
+    print("Port Mapping:")
+    print("2100-2700 = Routers")
+    print("2800-3000 = Switches")
+    print("3100-3400 = ASAs")
+    print("3500-3600 = Extra / future expansion")
+    print()
+
     confirm = input("Type RESET to continue: ")
 
     if confirm != "RESET":
@@ -235,9 +238,8 @@ def main():
         "success": 0,
         "password_protected": 0,
         "no_device": 0,
-        "no_prompt": 0,
         "extra_detected": 0,
-        "error": 0
+        "error": 0,
     }
 
     log("=" * 60, log_file)
@@ -256,14 +258,13 @@ def main():
 
         log("-" * 60, log_file)
 
-    log("LAN Lab reset completed.", log_file)
     log("=" * 60, log_file)
+    log("LAN Lab reset completed.", log_file)
     log("SUMMARY", log_file)
     log(f"Successful resets: {summary['success']}", log_file)
     log(f"Password protected/skipped: {summary['password_protected']}", log_file)
     log(f"No device detected: {summary['no_device']}", log_file)
-    log(f"No usable prompt: {summary['no_prompt']}", log_file)
-    log(f"Extra ports detected: {summary['extra_detected']}", log_file)
+    log(f"Extra ports skipped: {summary['extra_detected']}", log_file)
     log(f"Errors: {summary['error']}", log_file)
     log("=" * 60, log_file)
 
