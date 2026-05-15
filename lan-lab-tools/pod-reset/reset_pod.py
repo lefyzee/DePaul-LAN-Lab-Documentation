@@ -5,6 +5,7 @@ from datetime import datetime
 # ==============================
 # Check if netmiko is installed
 # ==============================
+
 try:
     from netmiko import ConnectHandler
     from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
@@ -18,7 +19,7 @@ TERMINAL_SERVER_IP = "192.168.100.1"
 
 # Change these ports to either test one device or set it from START_PORT to 2100 to END_PORT 3600 to reset all devices
 START_PORT = 2100
-END_PORT = 2100
+END_PORT = 3600
 PORT_STEP = 100
 
 # Send the commands to the logs folder
